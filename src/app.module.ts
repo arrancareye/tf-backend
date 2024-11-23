@@ -9,19 +9,20 @@ import { TravelPreferenceModule } from './travel-preference/travel-preference.mo
 import { SubscriptionModule } from './subscription/subscription.module';
 import { ChatModule } from './chat/chat.module';
 import { MessageModule } from './message/message.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
-import typeorm from './config/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { getDatabaseConfig } from './config/typeorm';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [typeorm]
     }),
     TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => (configService.get('typeorm'))
+      useFactory: (configService: ConfigService) => getDatabaseConfig(configService) as TypeOrmModuleOptions,
     }),
     UserModule,
     DestinationModule,
